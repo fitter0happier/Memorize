@@ -2,17 +2,24 @@
 import SwiftUI
 
 struct ContentView: View {
-    let emojis = ["👻", "🎃", "🕷️", "😈", "👻", "🎃", "🕷️", "😈", "👻", "🎃", "🕷️", "😈", "👻", "🎃", "🕷️", "😈", "👻", "🎃", "🕷️", "😈", "👻", "🎃", "🕷️", "😈"]
+    @State var emojis: [String] = []
     
-    @State var cardCount = 4
+    let suits = ["❤️", "♠️", "♦️", "♣️"]
+    let shapes = ["⬜️", "🔵", "🔺", "🔶", "🟩", "🟣", "🛑"]
+    let zodiacs = ["♈️", "♉️", "♊️", "♋️", "♌️", "♍️", "♎️", "♏️", "♐️", "♑️", "♒️", "♓️"]
+    
+    @State var cardCount = 0
+    @State var cardColor: Color = .white
+    @State var randomRange: [Int] = []
     
     var body: some View {
         VStack {
+            Text("Memorize!").font(.largeTitle)
             ScrollView {
                 cards
             }
             Spacer()
-            cardCountAdjusters
+            themeSelector
         }
         .padding()
     }
@@ -20,39 +27,90 @@ struct ContentView: View {
     var cards: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
             ForEach(0..<cardCount, id: \.self) { index in
-                CardView(content: emojis[index])
+                CardView(content: emojis[randomRange[index]], isFaceUp: false)
                     .aspectRatio(2/3, contentMode: .fit)
             }
             
         }
-        .foregroundColor(.orange)
+        .foregroundColor(cardColor)
     }
     
-    var cardCountAdjusters: some View {
-        HStack {
-            cardRemover
-            Spacer()
-            cardAdder
+    func switchTheme (to theme: String) -> () {
+        emojis = []
+        var chosenEmojis: [String]
+        
+        switch theme {
+        case "Suits":
+            chosenEmojis = suits
+            cardColor = .pink
+        case "Shapes":
+            chosenEmojis = shapes
+            cardColor = .cyan
+        default:
+            chosenEmojis = zodiacs
+            cardColor = .purple
+            
         }
-        .imageScale(.large)
-        .font(.largeTitle)
+        
+        for item in chosenEmojis {
+            let amount = Int.random(in: 1...3)
+            for _ in 0..<amount * 2 {
+                emojis.append(item)
+            }
+        }
+    
+        cardCount = emojis.count
+        randomRange = Array(0..<cardCount).shuffled()
     }
     
-    func cardCountAdjuster(by offset: Int, symbol: String) -> some View {
+    var themeSelector: some View {
+        HStack {
+            suitsThemeChooser
+            Spacer()
+            shapesThemeChooser
+            Spacer()
+            zodiacsThemeChooser
+        }
+    }
+    
+    var suitsThemeChooser: some View {
         Button(action: {
-            cardCount += offset
+            switchTheme(to: "Suits")
         }, label: {
-            Image(systemName: symbol)
+            VStack {
+                Image(systemName: "suit.spade.fill")
+                    .imageScale(.large)
+                    .font(.largeTitle)
+                Text("Suits")
+            }
         })
-        .disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
     }
     
-    var cardRemover: some View {
-        cardCountAdjuster(by: -1, symbol: "rectangle.stack.badge.minus.fill")
+    var shapesThemeChooser: some View {
+        Button(action: {
+            switchTheme(to: "Shapes")
+        }, label: {
+            VStack {
+                Image(systemName: "octagon.fill")
+                    .imageScale(.large)
+                    .font(.largeTitle)
+                Text("Shapes")
+            }
+        })
     }
     
-    var cardAdder: some View {
-        cardCountAdjuster(by: +1, symbol: "rectangle.stack.badge.plus.fill")
+    var zodiacsThemeChooser: some View {
+        Button(action: {
+            switchTheme(to: "Zodiacs")
+        }, label: {
+            VStack {
+                Image(systemName: "moon.fill")
+                    .imageScale(.large)
+                    .font(.largeTitle)
+                Text("Zodiacs")
+            }
+        })
+        
     }
 }
 
@@ -66,7 +124,7 @@ struct CardView: View {
             Group {
                 base.fill(.white)
                 base.strokeBorder(lineWidth: 2)
-                Text(content).font(.largeTitle)
+                Text(content).font(.system(size: 100))
             }
             .opacity(isFaceUp ? 1 : 0)
             base.fill().opacity(isFaceUp ? 0 : 1)
