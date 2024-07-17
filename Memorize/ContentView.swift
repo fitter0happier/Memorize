@@ -7,6 +7,7 @@ struct ContentView: View {
     let suits = ["❤️", "♠️", "♦️", "♣️"]
     let shapes = ["⬜️", "🔵", "🔺", "🔶", "🟩", "🟣", "🛑"]
     let zodiacs = ["♈️", "♉️", "♊️", "♋️", "♌️", "♍️", "♎️", "♏️", "♐️", "♑️", "♒️", "♓️"]
+    let alina = ["🪐", "🔮", "🎀", "🩷", "❤️‍🔥", "🦕", "🧚🏻‍♀️", "🧝🏻‍♀️", "🧟‍♀️", "🫦", "👌🏻", "🙂‍↔️"]
     
     @State var cardCount = 0
     @State var cardColor: Color = .white
@@ -46,6 +47,9 @@ struct ContentView: View {
         case "Shapes":
             chosenEmojis = shapes
             cardColor = .cyan
+        case "Alina":
+            chosenEmojis = alina
+            cardColor = Color(red: 100, green: 188, blue: 500)
         default:
             chosenEmojis = zodiacs
             cardColor = .purple
@@ -53,7 +57,7 @@ struct ContentView: View {
         }
         
         for item in chosenEmojis {
-            let amount = Int.random(in: 1...3)
+            let amount = Int.random(in: 1...1)
             for _ in 0..<amount * 2 {
                 emojis.append(item)
             }
@@ -70,6 +74,8 @@ struct ContentView: View {
             shapesThemeChooser
             Spacer()
             zodiacsThemeChooser
+            Spacer()
+            alinaThemeChooser
         }
     }
     
@@ -108,6 +114,20 @@ struct ContentView: View {
                     .imageScale(.large)
                     .font(.largeTitle)
                 Text("Zodiacs")
+            }
+        })
+        
+    }
+    
+    var alinaThemeChooser: some View {
+        Button(action: {
+            switchTheme(to: "Alina")
+        }, label: {
+            VStack {
+                Image(systemName: "sofa.fill")
+                    .imageScale(.large)
+                    .font(.largeTitle)
+                Text("Alina")
             }
         })
         
