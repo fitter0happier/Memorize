@@ -1,11 +1,12 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct EmojiMemoryGameView: View {
+    @ObservedObject var viewModel: EmojiMemoryGame
+    
     @State var emojis: [String] = []
     
     let suits = ["❤️", "♠️", "♦️", "♣️"]
-    let shapes = ["⬜️", "🔵", "🔺", "🔶", "🟩", "🟣", "🛑"]
     let zodiacs = ["♈️", "♉️", "♊️", "♋️", "♌️", "♍️", "♎️", "♏️", "♐️", "♑️", "♒️", "♓️"]
     let alina = ["🪐", "🔮", "🎀", "🩷", "❤️‍🔥", "🦕", "🧚🏻‍♀️", "🧝🏻‍♀️", "🧟‍♀️", "🫦", "👌🏻", "🙂‍↔️"]
     
@@ -19,17 +20,20 @@ struct ContentView: View {
             ScrollView {
                 cards
             }
-            Spacer()
+            Button("Shuffle") {
+                viewModel.shuffle()
+            }
             themeSelector
         }
         .padding()
     }
     
     var cards: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
-            ForEach(0..<cardCount, id: \.self) { index in
-                CardView(content: emojis[randomRange[index]], isFaceUp: false)
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 85), spacing: 0)]) {
+            ForEach(viewModel.cards.indices, id: \.self) { index in
+                CardView(viewModel.cards[index])
                     .aspectRatio(2/3, contentMode: .fit)
+                    .padding(4)
             }
             
         }
@@ -44,9 +48,6 @@ struct ContentView: View {
         case "Suits":
             chosenEmojis = suits
             cardColor = .pink
-        case "Shapes":
-            chosenEmojis = shapes
-            cardColor = .cyan
         case "Alina":
             chosenEmojis = alina
             cardColor = Color(red: 100, green: 188, blue: 500)
@@ -71,8 +72,6 @@ struct ContentView: View {
         HStack {
             suitsThemeChooser
             Spacer()
-            shapesThemeChooser
-            Spacer()
             zodiacsThemeChooser
             Spacer()
             alinaThemeChooser
@@ -88,19 +87,6 @@ struct ContentView: View {
                     .imageScale(.large)
                     .font(.largeTitle)
                 Text("Suits")
-            }
-        })
-    }
-    
-    var shapesThemeChooser: some View {
-        Button(action: {
-            switchTheme(to: "Shapes")
-        }, label: {
-            VStack {
-                Image(systemName: "octagon.fill")
-                    .imageScale(.large)
-                    .font(.largeTitle)
-                Text("Shapes")
             }
         })
     }
@@ -135,8 +121,11 @@ struct ContentView: View {
 }
 
 struct CardView: View {
-    let content: String
-    @State var isFaceUp = true
+    let card: MemoryGame<String>.Card
+    
+    init(_ card: MemoryGame<String>.Card) {
+        self.card = card
+    }
     
     var body: some View {
         ZStack {
@@ -144,17 +133,17 @@ struct CardView: View {
             Group {
                 base.fill(.white)
                 base.strokeBorder(lineWidth: 2)
-                Text(content).font(.system(size: 100))
+                Text(card.content)
+                    .font(.system(size: 100))
+                    .minimumScaleFactor(0.01)
+                    .aspectRatio(1, contentMode: .fit)
             }
-            .opacity(isFaceUp ? 1 : 0)
-            base.fill().opacity(isFaceUp ? 0 : 1)
-        }
-        .onTapGesture {
-            isFaceUp.toggle()
+            .opacity(card.isFaceUp ? 1 : 0)
+            base.fill().opacity(card.isFaceUp ? 0 : 1)
         }
     }
 }
 
 #Preview {
-    ContentView()
+    EmojiMemoryGameView(viewModel: EmojiMemoryGame())
 }
