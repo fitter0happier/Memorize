@@ -23,6 +23,11 @@ struct EmojiMemoryGameView: View {
             Button("Shuffle") {
                 viewModel.shuffle()
             }
+            .font(.largeTitle)
+            ScrollView {
+                cards
+                    .animation(.default, value: viewModel.cards)
+            }
             themeSelector
         }
         .padding()
@@ -74,10 +79,11 @@ struct EmojiMemoryGameView: View {
     var themeSelector: some View {
         HStack {
             suitsThemeChooser
-            Spacer()
+                .frame(maxWidth: .infinity)
             zodiacsThemeChooser
-            Spacer()
+                .frame(maxWidth: .infinity)
             alinaThemeChooser
+                .frame(maxWidth: .infinity)
         }
     }
     
