@@ -11,12 +11,15 @@ struct EmojiMemoryGameView: View {
     let alina = ["🪐", "🔮", "🎀", "🩷", "❤️‍🔥", "🦕", "🧚🏻‍♀️", "🧝🏻‍♀️", "🧟‍♀️", "🫦", "👌🏻", "🙂‍↔️"]
     
     @State var cardCount = 0
-    @State var cardColor: Color = .white
+    @State var cardColor: Color = .purple
     @State var randomRange: [Int] = []
     
     var body: some View {
         VStack {
             Text("Memorize!").font(.largeTitle)
+            ScrollView {
+                cards.animation(.default, value: viewModel.cards)
+            }
             Button("Shuffle") {
                 viewModel.shuffle()
             }
@@ -55,7 +58,7 @@ struct EmojiMemoryGameView: View {
             cardColor = .pink
         case "Alina":
             chosenEmojis = alina
-            cardColor = Color(red: 100, green: 188, blue: 500)
+            cardColor = .purple
         default:
             chosenEmojis = zodiacs
             cardColor = .purple
