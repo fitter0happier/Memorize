@@ -2,15 +2,23 @@ import Foundation
 
 struct MemoryGame<CardContent> where CardContent: Equatable {
     private(set) var cards: [Card]
+    private(set) var currentTheme: Theme
     
-    init(numberOfPairsOfCards: Int, cardContentFactory: (Int) -> CardContent) {
+    init(currentTheme: Theme, 
+         numberOfPairsOfCards: Int,
+         cardContentFactory: (Int) -> CardContent)
+    {
+        self.currentTheme = currentTheme
         cards = []
         for pairIndex in 0..<max(2, numberOfPairsOfCards) {
             let content = cardContentFactory(pairIndex)
             cards.append(Card(content: content, id: "\(pairIndex + 1)a"))
             cards.append(Card(content: content, id: "\(pairIndex + 1)b"))
         }
+        cards.shuffle()
     }
+    
+    var currentScore = 0
     
     var indexOfOneAndOnlyFaceUpCard: Int? {
         get {
@@ -29,6 +37,18 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
                     if cards[chosenIndex].content == cards[potentialMatchIndex].content {
                         cards[chosenIndex].isMatched = true
                         cards[potentialMatchIndex].isMatched = true
+                        currentScore += 2
+                    } else {
+                        if cards[chosenIndex].isPreviouslySeen {
+                            currentScore -= 1
+                        }
+                        
+                        if cards[potentialMatchIndex].isPreviouslySeen {
+                            currentScore -= 1
+                        }
+                        
+                        cards[chosenIndex].isPreviouslySeen = true
+                        cards[potentialMatchIndex].isPreviouslySeen = true
                     }
                     
                 } else {
@@ -45,10 +65,11 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     }
     
     struct Card: Equatable, Identifiable, CustomDebugStringConvertible {
-        var isFaceUp = false
-        var isMatched = false
         let content: CardContent
         
+        var isPreviouslySeen = false
+        var isFaceUp = false
+        var isMatched = false
         var id: String
         var debugDescription: String {
             "\(id): \(content) \(isFaceUp ? "up" : "down") \(isMatched ? "matched" : "")"
