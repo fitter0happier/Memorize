@@ -2,6 +2,8 @@
 import SwiftUI
 
 struct EmojiMemoryGameView: View {
+    typealias Card = MemoryGame<String>.Card
+    
     @ObservedObject var viewModel: EmojiMemoryGame
     
     private let spacing:CGFloat = 4
@@ -10,21 +12,36 @@ struct EmojiMemoryGameView: View {
     var body: some View {
         VStack {
             HStack{
-                Text(viewModel.getName())
+                themeName
                 Spacer()
-                Text("Score: \(viewModel.getScore())")
+                score
             }
-            .padding(10)
-            .font(.largeTitle)
+                .padding(10)
+                .font(.largeTitle)
             
-                cards.animation(.default, value: viewModel.cards)
+            cards
+            newGameButton
             
-            Button("New Game") {
+        }
+            .padding()
+    }
+    
+    private var score: some View {
+        Text("Score: \(viewModel.getScore())")
+            .animation(nil)
+    }
+    
+    private var themeName: some View {
+        Text(viewModel.getName())
+    }
+    
+    private var newGameButton: some View {
+        Button("New Game") {
+            withAnimation {
                 viewModel.startNewGame()
             }
-            .font(.title)
         }
-        .padding()
+            .font(.title)
     }
 
     private var cards: some View {
@@ -32,12 +49,18 @@ struct EmojiMemoryGameView: View {
         { card in
             CardView(card: card)
                 .padding(spacing)
+                .overlay(FlyingNumber(number: scoreChange(causedBy: card)))
                 .onTapGesture {
-                    viewModel.choose(card)
+                    withAnimation {
+                        viewModel.choose(card)
+                    }
                 }
                 .foregroundColor(viewModel.getColor())
         }
-                
+    }
+    
+    private func scoreChange(causedBy card: Card) -> Int {
+        return 0
     }
 }
 
